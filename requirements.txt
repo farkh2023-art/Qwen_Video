@@ -1,0 +1,6 @@
+Flask
+requests
+elevenlabs
+openai
+
+
