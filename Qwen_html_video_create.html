@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Générateur Vidéo Créatif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .progress-bar {
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        .template-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .template-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .active-template {
+            border: 2px solid #667eea !important;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .step {
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+        .step.active {
+            opacity: 1;
+            font-weight: 600;
+        }
+        .demo-video {
+            border: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .demo-video:hover {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .status-running {
+            background-color: #10b981;
+            box-shadow: 0 0 8px #10b981;
+        }
+        .status-pending {
+            background-color: #f59e0b;
+            box-shadow: 0 0 8px #f59e0b;
+        }
+        .status-completed {
+            background-color: #3b82f6;
+            box-shadow: 0 0 8px #3b82f6;
+        }
+        .star-button {
+            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+            transition: all 0.3s ease;
+        }
+        .star-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+        }
+        .download-progress {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .download-progress.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Header -->
+    <header class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-20"></div>
+        <div class="relative container mx-auto px-6 py-16 lg:py-24">
+            <div class="flex flex-wrap items-center justify-between mb-8">
+                <div class="flex items-center space-x-2 mb-4 lg:mb-0">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    </div>
+                    <h1 class="text-2xl font-bold">Générateur Vidéo Créatif</h1>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="badge bg-blue-500 text-white">version 1.0.0</span>
+                    <span class="badge bg-green-500 text-white">python 3.8+</span>
+                    <span class="badge bg-yellow-500 text-white">MIT</span>
+                    <span class="badge bg-green-600 text-white">Active</span>
+                </div>
+            </div>
+            
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+                    Transformez vos idées en vidéos <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">professionnelles</span> avec l'IA
+                </h2>
+                <p class="text-xl text-gray-200 mb-8 leading-relaxed">
+                    Une plateforme complète pour créer automatiquement des vidéos engageantes combinant narration IA, visuels générés, et montage professionnel.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="startGenerator" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Créer ma première vidéo
+                    </button>
+                    <button id="showDemo" class="border-2 border-white/30 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 backdrop-blur-sm">
+                        Voir la démo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Features -->
+    <section id="features" class="py-20 bg-black/20 backdrop-blur-sm">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl font-bold mb-4">✨ Fonctionnalités Principales</h3>
+                <p class="text-gray-300 text-lg">Découvrez toutes les capacités de notre générateur de vidéos intelligent</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Audio Feature -->
+                <div class="card-hover bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <div class="feature-icon mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-400"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">🎙️ Génération Audio Avancée</h4>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Voix IA Naturelles : ElevenLabs et OpenAI TTS</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Styles Vocaux Multiples : Professionnel, amical, narratif</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Post-traitement Audio : Normalisation, compression</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Musique de Fond : Bibliothèque intégrée</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Effets Sonores : Transitions, notifications, ambiances</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Visual Feature -->
+                <div class="card-hover bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <div class="feature-icon mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-400"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">🎨 Création Visuelle Intelligente</h4>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Templates Professionnels : Business, éducatif, marketing</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Génération d'Images IA : DALL-E, Stable Diffusion</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Animations Avancées : Zoom, glissement, fondu</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Styles Visuels : Moderne, corporate, créatif</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Post-traitement : Glow, netteté, contraste</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Video Feature -->
+                <div class="card-hover bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <div class="feature-icon mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-pink-400"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    </div>
+                    <h4 class="text-xl font-bold mb-4">🎞️ Montage Vidéo Professionnel</h4>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Transitions Dynamiques : Fade, slide, wipe</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Qualité Configurable : jusqu'à 4K/60fps</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Effets Visuels : Correction colorimétrique, stabilisation</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Formats Multiples : 16:9, 9:16, 21:9</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400 flex-shrink-0"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            <span>Export Optimisé : MP4, WebM, codecs optimisés</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Generator Modal -->
+    <div id="generatorModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Créateur de Vidéo</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="mb-8">
+                <div class="flex justify-between mb-4">
+                    <span class="step active" data-step="1">1. Choix du Template</span>
+                    <span class="step" data-step="2">2. Configuration</span>
+                    <span class="step" data-step="3">3. Génération</span>
+                    <span class="step" data-step="4">4. Téléchargement</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill bg-gradient-to-r from-blue-500 to-purple-600" style="width: 25%"></div>
+                </div>
+            </div>
+            
+            <!-- Step 1: Template Selection -->
+            <div id="step1" class="step-content">
+                <h4 class="text-xl font-bold mb-6">Choisissez un template</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="template-card bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10" data-template="business">
+                        <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><building size="16"></building></svg>
+                        </div>
+                        <h5 class="font-bold text-lg mb-2">Business Moderne</h5>
+                        <p class="text-gray-300 text-sm mb-3">Présentations professionnelles, pitches d'investissement</p>
+                        <div class="text-sm text-gray-400">
+                            <span>⏱️ 2-5 min</span> • <span>⭐⭐</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10" data-template="educational">
+                        <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><book-open size="16"></book-open></svg>
+                        </div>
+                        <h5 class="font-bold text-lg mb-2">Tutoriel Éducatif</h5>
+                        <p class="text-gray-300 text-sm mb-3">Formations, e-learning, démonstrations</p>
+                        <div class="text-sm text-gray-400">
+                            <span>⏱️ 3-10 min</span> • <span>⭐</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10" data-template="marketing">
+                        <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><megaphone size="16"></megaphone></svg>
+                        </div>
+                        <h5 class="font-bold text-lg mb-2">Marketing Créatif</h5>
+                        <p class="text-gray-300 text-sm mb-3">Publicité, réseaux sociaux, promotions</p>
+                        <div class="text-sm text-gray-400">
+                            <span>⏱️ 30s-2 min</span> • <span>⭐⭐</span>
+                        </div>
+                    </div>
+                    
+                    <div class="template-card bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10" data-template="cinematic">
+                        <div class="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><film size="16"></film></svg>
+                        </div>
+                        <h5 class="font-bold text-lg mb-2">Narration Cinématique</h5>
+                        <p class="text-gray-300 text-sm mb-3">Storytelling, documentaires, films</p>
+                        <div class="text-sm text-gray-400">
+                            <span>⏱️ 5-15 min</span> • <span>⭐⭐⭐</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-8">
+                    <button id="nextStep1" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        Suivant
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Configuration -->
+            <div id="step2" class="step-content hidden">
+                <h4 class="text-xl font-bold mb-6">Configurez votre vidéo</h4>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Titre de la vidéo</label>
+                        <input type="text" id="videoTitle" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: Présentation de notre solution innovante">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Sujet principal</label>
+                        <textarea id="videoTopic" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 h-24 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Décrivez le sujet de votre vidéo..."></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Durée estimée (secondes)</label>
+                            <input type="number" id="videoDuration" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" value="180" min="30" max="900">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Style de voix</label>
+                            <select id="voiceStyle" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="professional">Professionnel</option>
+                                <option value="friendly">Amitié</option>
+                                <option value="narrative">Narratif</option>
+                                <option value="energetic">Énergique</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Style visuel</label>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="visualStyle" value="modern" class="text-blue-500" checked>
+                                <span>Moderne</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="visualStyle" value="corporate" class="text-blue-500">
+                                <span>Corporate</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="visualStyle" value="creative" class="text-blue-500">
+                                <span>Creatif</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="radio" name="visualStyle" value="minimal" class="text-blue-500">
+                                <span>Minimal</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-between mt-8">
+                    <button id="prevStep2" class="border border-white/30 hover:bg-white/10 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Précédent
+                    </button>
+                    <button id="nextStep2" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Suivant
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Generation -->
+            <div id="step3" class="step-content hidden">
+                <h4 class="text-xl font-bold mb-6">Génération de la vidéo</h4>
+                <div class="bg-white/5 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="font-medium">Analyse du sujet et génération du script</span>
+                        <div class="status-indicator status-running"></div>
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill bg-blue-500" style="width: 80%"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">Temps estimé: 15-30 secondes</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="font-medium">Génération des visuels et animations</span>
+                        <div class="status-indicator status-pending"></div>
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill bg-gray-500" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">En attente...</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-xl p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="font-medium">Montage et synchronisation audio-vidéo</span>
+                        <div class="status-indicator status-pending"></div>
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill bg-gray-500" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">En attente...</p>
+                </div>
+                
+                <div class="bg-white/5 rounded-xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="font-medium">Export et optimisation finale</span>
+                        <div class="status-indicator status-pending"></div>
+                    </div>
+                    <div class="progress-bar mb-2">
+                        <div class="progress-fill bg-gray-500" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-400">En attente...</p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button id="prevStep3" class="border border-white/30 hover:bg-white/10 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Précédent
+                    </button>
+                    <button id="cancelGeneration" class="border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 4: Download -->
+            <div id="step4" class="step-content hidden">
+                <h4 class="text-xl font-bold mb-6">Vidéo prête !</h4>
+                <div class="bg-white/5 rounded-xl p-6 mb-6">
+                    <div class="aspect-video bg-black rounded-lg mb-4 flex items-center justify-center">
+                        <img src="https://placehold.co/800x450/1a1a1a/667eea?text=Vidéo+Générée" alt="Vidéo générée" class="w-full h-full object-cover rounded-lg">
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h5 id="finalTitle" class="font-bold">Présentation de notre solution innovante</h5>
+                            <p class="text-sm text-gray-400">Durée: 3 minutes • Format: 1080p</p>
+                        </div>
+                        <button id="downloadVideo" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                            Télécharger
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button id="prevStep4" class="border border-white/30 hover:bg-white/10 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Revenir en arrière
+                    </button>
+                    <button id="newVideo" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300">
+                        Créer une nouvelle vidéo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Progress -->
+    <div id="downloadProgress" class="download-progress">
+        <div class="flex items-center justify-between mb-2">
+            <span class="font-medium">Téléchargement en cours</span>
+            <span id="downloadPercent">0%</span>
+        </div>
+        <div class="progress-bar mb-2">
+            <div id="downloadProgressFill" class="progress-fill bg-gradient-to-r from-green-500 to-blue-500" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-sm">
+            <span id="downloadSpeed">0 MB/s</span>
+            <span id="downloadTime">Temps restant: --:--</span>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demoModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 rounded-2xl p-8 w-full max-w-6xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold">Démonstration</h3>
+                <button id="closeDemo" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Business Moderne</h4>
+                    <div class="aspect-video bg-black rounded-lg mb-4 flex items-center justify-center overflow-hidden demo-video">
+                        <img src="https://placehold.co/600x338/1a1a1a/667eea?text=Demo+Business" alt="Demo Business" class="w-full h-full object-cover">
+                    </div>
+                    <p class="text-gray-300 mb-4">Présentation professionnelle avec voix IA naturelle et animations modernes.</p>
+                    <div class="text-sm text-gray-400">
+                        <div>⏱️ Durée: 3 minutes</div>
+                        <div>🎯 Conversion: +40% sur les pitches</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-xl font-bold mb-4">Tutoriel Éducatif</h4>
+                    <div class="aspect-video bg-black rounded-lg mb-4 flex items-center justify-center overflow-hidden demo-video">
+                        <img src="https://placehold.co/600x338/1a1a1a/10b981?text=Demo+Éducatif" alt="Demo Éducatif" class="w-full h-full object-cover">
+                    </div>
+                    <p class="text-gray-300 mb-4">Formation interactive avec démonstrations et voix pédagogue.</p>
+                    <div class="text-sm text-gray-400">
+                        <div>⏱️ Durée: 8 minutes</div>
+                        <div>🎯 Engagement: +60% vs vidéos statiques</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 text-center">
+                <button id="tryDemo" class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105">
+                    Essayer ce template
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Architecture -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl font-bold mb-4">🏗️ Architecture Technique</h3>
+                <p class="text-gray-300 text-lg">Découvrez l'infrastructure puissante qui alimente notre générateur</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2">🎨 Frontend (Dashboard Web)</h4>
+                            <ul class="text-gray-300 space-y-1">
+                                <li>• Interface React/Alpine.js</li>
+                                <li>• Templates dynamiques</li>
+                                <li>• Prévisualisations temps réel</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 1.41 1.41 1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1.3-.25 1.65 1.65 0 0 0 1.3-.25 1.65 1.65 0 0 1 1.41-1.41 1.65 1.65 0 0 0 1.82-.33 1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 1-1.41-1.41 1.65 1.65 0 0 0-1.3-.25 1.65 1.65 0 0 0-1.3-.25 1.65 1.65 0 0 1-1.41-1.41 1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.3.25 1.65 1.65 0 0 0-1.3.25 1.65 1.65 0 0 1-1.41 1.41 1.65 1.65 0 0 0-1.82.33 1.65 1.65 0 0 0-.33 1.82 1.65 1.65 0 0 1 1.41 1.41 1.65 1.65 0 0 0 1.3.25 1.65 1.65 0 0 0 1.3.25 1.65 1.65 0 0 1 1.41 1.41 1.65 1.65 0 0 0 1.82.33 1.65 1.65 0 0 0 1.3-.25 1.65 1.65 0 0 0 1.3-.25"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2">⚙️ Backend (API Flask)</h4>
+                            <ul class="text-gray-300 space-y-1">
+                                <li>• Gestionnaire de tâches</li>
+                                <li>• Moteur de templates</li>
+                                <li>• APIs externes (OpenAI, ElevenLabs)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2">🎬 Moteur de Rendu</h4>
+                            <ul class="text-gray-300 space-y-1">
+                                <li>• Pipeline audio avancé</li>
+                                <li>• Génération visuelle</li>
+                                <li>• Montage automatique</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start space-x-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M20 20a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2"></path><path d="M2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2"></path><path d="M10 2v16"></path><path d="M14 2v16"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-2">💾 Stockage</h4>
+                            <ul class="text-gray-300 space-y-1">
+                                <li>• Base de données SQLite</li>
+                                <li>• Cache Redis (optionnel)</li>
+                                <li>• Système de fichiers</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="py-20 bg-black/20 backdrop-blur-sm">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl font-bold mb-4">⚡ Démarrage Rapide</h3>
+                <p class="text-gray-300 text-lg">Commencez à créer vos vidéos en quelques minutes seulement</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 mb-8">
+                    <h4 class="text-xl font-bold mb-4">1. Configuration Initiale</h4>
+                    <p class="text-gray-300 mb-4">Éditez le fichier <code class="bg-black/30 px-2 py-1 rounded text-sm">.env</code> avec vos clés API :</p>
+                    <div class="bg-black/50 p-4 rounded-lg overflow-x-auto">
+                        <pre class="text-sm text-gray-300"><code># APIs IA (optionnelles mais recommandées)
+OPENAI_API_KEY=sk-...
+ELEVENLABS_API_KEY=...
+REPLICATE_API_TOKEN=...
+
+# Configuration de base
+SECRET_KEY=votre-clé-secrète
+FLASK_ENV=development</code></pre>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 mb-8">
+                    <h4 class="text-xl font-bold mb-4">2. Première Vidéo en 3 Minutes</h4>
+                    <div class="space-y-3 text-gray-300">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">1</div>
+                            <span>Démarrer l'application</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">2</div>
+                            <span>Ouvrir <a href="http://localhost:5000" class="text-blue-400 hover:underline">http://localhost:5000</a></span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">3</div>
+                            <span>Créer un nouveau projet et choisir un template</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">4</div>
+                            <span>Laisser l'IA générer le script automatiquement</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">5</div>
+                            <span>Cliquer sur "Générer la Vidéo"</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <h4 class="text-xl font-bold mb-4">3. Exemple de Code</h4>
+                    <div class="bg-black/50 p-4 rounded-lg overflow-x-auto">
+                        <pre class="text-sm text-gray-300"><code>from enhanced_video_renderer import AdvancedVideoRenderer
+from creative_templates_system import CreativeTemplateSystem
+
+# Configuration d'un projet
+config = {
+    "name": "Ma Présentation",
+    "chapters": [
+        {
+            "title": "Introduction",
+            "text": "Bienvenue dans notre solution révolutionnaire...",
+            "duration": 15,
+            "emotion": "enthusiastic"
+        }
+    ],
+    "visual_style": "modern",
+    "voice_style": "professional",
+    "render_quality": "high"
+}
+
+# Génération de la vidéo
+renderer = AdvancedVideoRenderer()
+video_path = renderer.render_complete_video(config, "output/ma_video.mp4")
+print(f"Vidéo créée : {video_path}")</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Usage Templates -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl font-bold mb-4">🎯 Templates par Cas d'Usage</h3>
+                <p class="text-gray-300 text-lg">Choisissez le template parfait pour votre projet</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10">
+                        <thead class="bg-white/10">
+                            <tr>
+                                <th class="text-left p-4 font-bold">Template</th>
+                                <th class="text-left p-4 font-bold">Cas d'Usage</th>
+                                <th class="text-left p-4 font-bold">Durée Typique</th>
+                                <th class="text-left p-4 font-bold">Difficulté</th>
+                                <th class="text-left p-4 font-bold">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/10">
+                            <tr>
+                                <td class="p-4 font-semibold">Business Moderne</td>
+                                <td class="p-4 text-gray-300">Présentations, pitches</td>
+                                <td class="p-4 text-gray-300">2-5 min</td>
+                                <td class="p-4 text-gray-300">
+                                    <div class="flex space-x-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <button class="use-template bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300" data-template="business">
+                                        Utiliser
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Tutoriel Éducatif</td>
+                                <td class="p-4 text-gray-300">Formation, e-learning</td>
+                                <td class="p-4 text-gray-300">3-10 min</td>
+                                <td class="p-4 text-gray-300">
+                                    <div class="flex space-x-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <button class="use-template bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300" data-template="educational">
+                                        Utiliser
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Marketing Créatif</td>
+                                <td class="p-4 text-gray-300">Publicité, réseaux sociaux</td>
+                                <td class="p-4 text-gray-300">30s-2 min</td>
+                                <td class="p-4 text-gray-300">
+                                    <div class="flex space-x-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <button class="use-template bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300" data-template="marketing">
+                                        Utiliser
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-semibold">Narration Cinématique</td>
+                                <td class="p-4 text-gray-300">Storytelling, documentaire</td>
+                                <td class="p-4 text-gray-300">5-15 min</td>
+                                <td class="p-4 text-gray-300">
+                                    <div class="flex space-x-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-400"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                    </div>
+                                </td>
+                                <td class="p-4">
+                                    <button class="use-template bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-300" data-template="cinematic">
+                                        Utiliser
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="py-20 bg-black/20 backdrop-blur-sm">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl font-bold mb-4">📊 Roadmap</h3>
+                <p class="text-gray-300 text-lg">Découvrez nos prochaines fonctionnalités</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <h4 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-sm mr-3">1</span>
+                        Version 1.1 (Q2 2024)
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-blue-400 rounded-sm flex-shrink-0"></div>
+                            <span>Interface mobile responsive</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-blue-400 rounded-sm flex-shrink-0"></div>
+                            <span>Collaboration temps réel</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-blue-400 rounded-sm flex-shrink-0"></div>
+                            <span>Templates industrie-spécifiques</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-blue-400 rounded-sm flex-shrink-0"></div>
+                            <span>API REST complète</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <h4 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-sm mr-3">2</span>
+                        Version 1.2 (Q3 2024)
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-green-400 rounded-sm flex-shrink-0"></div>
+                            <span>Support multi-langues</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-green-400 rounded-sm flex-shrink-0"></div>
+                            <span>Intégration Zapier/Make</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-green-400 rounded-sm flex-shrink-0"></div>
+                            <span>Analytics avancées</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-green-400 rounded-sm flex-shrink-0"></div>
+                            <span>Cloud storage (AWS/GCP)</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10">
+                    <h4 class="text-xl font-bold mb-6 flex items-center">
+                        <span class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-sm mr-3">3</span>
+                        Version 2.0 (Q4 2024)
+                    </h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-purple-400 rounded-sm flex-shrink-0"></div>
+                            <span>Génération 3D</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-purple-400 rounded-sm flex-shrink-0"></div>
+                            <span>Avatars IA</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-purple-400 rounded-sm flex-shrink-0"></div>
+                            <span>Streaming live</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 border-2 border-purple-400 rounded-sm flex-shrink-0"></div>
+                            <span>Marketplace de templates</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 border-t border-white/10">
+        <div class="container mx-auto px-6">
+            <div class="text-center">
+                <div class="flex flex-col items-center space-y-6 mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                    </div>
+                    <h3 class="text-2xl font-bold">Générateur Vidéo Créatif</h3>
+                </div>
+                
+                <p class="text-xl mb-8 text-gray-300">Créé avec ❤️ pour transformer vos idées en vidéos professionnelles</p>
+                
+                <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+                    <a href="#" class="star-button text-white px-8 py-4 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        🌟 Star ce Repository
+                    </a>
+                    <a href="#" class="border-2 border-white/30 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm">
+                        🐛 Signaler un Bug
+                    </a>
+                    <a href="#" class="border-2 border-white/30 hover:bg-white/10 px-8 py-4 rounded-xl font-semibold transition-all duration-300 backdrop-blur-sm">
+                        💡 Demander une Fonctionnalité
+                    </a>
+                </div>
+                
+                <p class="text-gray-400">
+                    Créé avec ❤️ par <a href="#" class="text-blue-400 hover:underline">Votre Nom</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Modal controls
+        const generatorModal = document.getElementById('generatorModal');
+        const demoModal = document.getElementById('demoModal');
+        const startGenerator = document.getElementById('startGenerator');
+        const showDemo = document.getElementById('showDemo');
+        const closeModal = document.getElementById('closeModal');
+        const closeDemo = document.getElementById('closeDemo');
+        const tryDemo = document.getElementById('tryDemo');
+
+        startGenerator.addEventListener('click', () => {
+            generatorModal.classList.remove('hidden');
+            updateStep(1);
+        });
+
+        showDemo.addEventListener('click', () => {
+            demoModal.classList.remove('hidden');
+        });
+
+        closeModal.addEventListener('click', () => {
+            generatorModal.classList.add('hidden');
+        });
+
+        closeDemo.addEventListener('click', () => {
+            demoModal.classList.add('hidden');
+        });
+
+        tryDemo.addEventListener('click', () => {
+            demoModal.classList.add('hidden');
+            generatorModal.classList.remove('hidden');
+            updateStep(1);
+        });
+
+        // Close modals when clicking outside
+        generatorModal.addEventListener('click', (e) => {
+            if (e.target === generatorModal) {
+                generatorModal.classList.add('hidden');
+            }
+        });
+
+        demoModal.addEventListener('click', (e) => {
+            if (e.target === demoModal) {
+                demoModal.classList.add('hidden');
+            }
+        });
+
+        // Template selection
+        const templateCards = document.querySelectorAll('.template-card');
+        let selectedTemplate = null;
+
+        templateCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove active class from all cards
+                templateCards.forEach(c => c.classList.remove('active-template'));
+                
+                // Add active class to clicked card
+                card.classList.add('active-template');
+                
+                // Update selected template
+                selectedTemplate = card.getAttribute('data-template');
+                
+                // Enable next button
+                document.getElementById('nextStep1').disabled = false;
+            });
+        });
+
+        // Step navigation
+        function updateStep(step) {
+            // Update progress bar
+            const progressFill = document.getElementById('progressFill');
+            progressFill.style.width = `${(step - 1) * 25}%`;
+            
+            // Update steps
+            document.querySelectorAll('.step').forEach(el => {
+                el.classList.remove('active');
+                if (parseInt(el.getAttribute('data-step')) === step) {
+                    el.classList.add('active');
+                }
+            });
+            
+            // Show/hide step content
+            document.querySelectorAll('.step-content').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.getElementById(`step${step}`).classList.remove('hidden');
+        }
+
+        // Next/Previous buttons
+        document.getElementById('nextStep1').addEventListener('click', () => {
+            updateStep(2);
+        });
+
+        document.getElementById('prevStep2').addEventListener('click', () => {
+            updateStep(1);
+        });
+
+        document.getElementById('nextStep2').addEventListener('click', () => {
+            updateStep(3);
+            
+            // Simulate generation process
+            setTimeout(() => {
+                document.querySelector('#step3 .status-indicator').classList.remove('status-running');
+                document.querySelector('#step3 .status-indicator').classList.add('status-completed');
+                
+                setTimeout(() => {
+                    const visualProgress = document.querySelectorAll('#step3 .progress-fill')[1];
+                    visualProgress.style.width = '80%';
+                    document.querySelectorAll('#step3 .status-indicator')[1].classList.remove('status-pending');
+                    document.querySelectorAll('#step3 .status-indicator')[1].classList.add('status-running');
+                    
+                    setTimeout(() => {
+                        const audioProgress = document.querySelectorAll('#step3 .progress-fill')[2];
+                        audioProgress.style.width = '80%';
+                        document.querySelectorAll('#step3 .status-indicator')[2].classList.remove('status-pending');
+                        document.querySelectorAll('#step3 .status-indicator')[2].classList.add('status-running');
+                        
+                        setTimeout(() => {
+                            const exportProgress = document.querySelectorAll('#step3 .progress-fill')[3];
+                            exportProgress.style.width = '100%';
+                            document.querySelectorAll('#step3 .status-indicator')[3].classList.remove('status-pending');
+                            document.querySelectorAll('#step3 .status-indicator')[3].classList.add('status-running');
+                            
+                            setTimeout(() => {
+                                updateStep(4);
+                                
+                                // Set final title
+                                const title = document.getElementById('videoTitle').value || 'Ma Vidéo Créative';
+                                document.getElementById('finalTitle').textContent = title;
+                            }, 1500);
+                        }, 1500);
+                    }, 1500);
+                }, 1500);
+            }, 1500);
+        });
+
+        document.getElementById('prevStep3').addEventListener('click', () => {
+            updateStep(2);
+        });
+
+        document.getElementById('prevStep4').addEventListener('click', () => {
+            updateStep(3);
+        });
+
+        document.getElementById('newVideo').addEventListener('click', () => {
+            updateStep(1);
+            selectedTemplate = null;
+            templateCards.forEach(c => c.classList.remove('active-template'));
+            document.getElementById('nextStep1').disabled = true;
+            document.getElementById('videoTitle').value = '';
+            document.getElementById('videoTopic').value = '';
+            document.getElementById('videoDuration').value = '180';
+            document.getElementById('voiceStyle').value = 'professional';
+            document.querySelector('input[name="visualStyle"][value="modern"]').checked = true;
+        });
+
+        document.getElementById('cancelGeneration').addEventListener('click', () => {
+            generatorModal.classList.add('hidden');
+        });
+
+        // Download functionality
+        document.getElementById('downloadVideo').addEventListener('click', () => {
+            const downloadProgress = document.getElementById('downloadProgress');
+            const downloadProgressFill = document.getElementById('downloadProgressFill');
+            const downloadPercent = document.getElementById('downloadPercent');
+            const downloadSpeed = document.getElementById('downloadSpeed');
+            const downloadTime = document.getElementById('downloadTime');
+            
+            // Show download progress
+            downloadProgress.classList.add('active');
+            
+            // Simulate download progress
+            let progress = 0;
+            const fileSize = 150; // MB
+            const startTime = Date.now();
+            
+            const downloadInterval = setInterval(() => {
+                progress += Math.random() * 5;
+                if (progress > 100) progress = 100;
+                
+                // Update progress
+                downloadProgressFill.style.width = `${progress}%`;
+                downloadPercent.textContent = `${Math.round(progress)}%`;
+                
+                // Calculate speed and time
+                const elapsed = (Date.now() - startTime) / 1000; // seconds
+                const downloaded = (progress / 100) * fileSize;
+                const speed = downloaded / elapsed;
+                const remaining = (fileSize - downloaded) / speed;
+                
+                downloadSpeed.textContent = `${speed.toFixed(1)} MB/s`;
+                downloadTime.textContent = `Temps restant: ${Math.floor(remaining / 60)}:${Math.floor(remaining % 60).toString().padStart(2, '0')}`;
+                
+                // Complete download
+                if (progress === 100) {
+                    clearInterval(downloadInterval);
+                    
+                    // Create a blob URL for the video
+                    const videoBlob = new Blob([
+                        '<!DOCTYPE html><html><body><h1>Vidéo Générée</h1><p>Cette vidéo a été créée avec le Générateur Vidéo Créatif.</p></body></html>'
+                    ], { type: 'text/plain' });
+                    
+                    const url = URL.createObjectURL(videoBlob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'video_creative.mp4';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // Hide progress after download
+                    setTimeout(() => {
+                        downloadProgress.classList.remove('active');
+                    }, 2000);
+                }
+            }, 100);
+        });
+
+        // Use template buttons
+        document.querySelectorAll('.use-template').forEach(button => {
+            button.addEventListener('click', () => {
+                generatorModal.classList.remove('hidden');
+                updateStep(1);
+                
+                // Select the corresponding template
+                const template = button.getAttribute('data-template');
+                const templateCard = document.querySelector(`.template-card[data-template="${template}"]`);
+                
+                // Remove active class from all cards
+                templateCards.forEach(c => c.classList.remove('active-template'));
+                
+                // Add active class to selected card
+                templateCard.classList.add('active-template');
+                
+                // Update selected template
+                selectedTemplate = template;
+                
+                // Enable next button
+                document.getElementById('nextStep1').disabled = false;
+            });
+        });
+    </script>
+    <!-- ... existing HTML code ... -->
+
+<script>
+    // ... existing JavaScript code ...
+
+    // Download functionality
+    document.getElementById('downloadVideo').addEventListener('click', () => {
+        const downloadProgress = document.getElementById('downloadProgress');
+        const downloadProgressFill = document.getElementById('downloadProgressFill');
+        const downloadPercent = document.getElementById('downloadPercent');
+        const downloadSpeed = document.getElementById('downloadSpeed');
+        const downloadTime = document.getElementById('downloadTime');
+
+        // Show download progress
+        downloadProgress.classList.add('active');
+
+        // Simulate download progress
+        let progress = 0;
+        const fileSize = 150; // MB
+        const startTime = Date.now();
+
+        const downloadInterval = setInterval(() => {
+            progress += Math.random() * 5;
+            if (progress > 100) progress = 100;
+
+            // Update progress
+            downloadProgressFill.style.width = `${progress}%`;
+            downloadPercent.textContent = `${Math.round(progress)}%`;
+
+            // Calculate speed and time
+            const elapsed = (Date.now() - startTime) / 1000; // seconds
+            const downloaded = (progress / 100) * fileSize;
+            const speed = downloaded / elapsed;
+            const remaining = (fileSize - downloaded) / speed;
+
+            downloadSpeed.textContent = `${speed.toFixed(1)} MB/s`;
+            downloadTime.textContent = `Temps restant: ${Math.floor(remaining / 60)}:${Math.floor(remaining % 60).toString().padStart(2, '0')}`;
+
+            // Complete download
+            if (progress === 100) {
+                clearInterval(downloadInterval);
+
+                // Replace placeholder logic with actual video file download
+                const videoFilePath = 'output/video_creative.mp4'; // Path to the actual video file
+                fetch(videoFilePath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'video_creative.mp4';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                        console.error('Error downloading video:', error);
+                    });
+
+                // Hide progress after download
+                setTimeout(() => {
+                    downloadProgress.classList.remove('active');
+                }, 2000);
+            }
+        }, 100);
+    });
+
+    // ... existing JavaScript code ...
+</script>
+</body>
+</html>
